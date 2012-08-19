@@ -1,0 +1,4 @@
+battleship
+==========
+
+Client-server game
