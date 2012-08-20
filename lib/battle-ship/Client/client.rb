@@ -7,7 +7,7 @@ module BattleShip::Client
     FIRE = 20
     QUIT = 30
 
-    def initialize(host = 'localhost', port = 2000)
+    def initialize(host = 'localhost', port = 2001)
       puts 'Connecting....'
       @socket = TCPSocket.open(host, port)
       puts 'Done!'
@@ -19,7 +19,8 @@ module BattleShip::Client
           data = message.map.flatten.unshift(MAP)
           @socket.write data.pack('C*')
         when QUIT
-          @socket.write [QUIT].pack('C*')
+
+          @socket.write [QUIT].pack('C*')  if @socket
         else
           return
       end

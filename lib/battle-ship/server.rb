@@ -9,3 +9,5 @@ require 'socket'
 require "battle-ship/Server/game"
 require "battle-ship/Server/user"
 require "battle-ship/Server/server"
+require "battle-ship/Server/listener"
+require "battle-ship/Server/notifier"

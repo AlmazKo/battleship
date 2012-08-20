@@ -17,7 +17,7 @@ module BattleShip::Server
     def add_gamer(user)
       if @users.size < 2
         @@mutex.synchronize {
-          raise 'Too many gamers!' if @users.size > 2
+          raise 'Too many2 gamers!' if @users.size > 2
           @users << user
           start() if @users.size == 2
         }
