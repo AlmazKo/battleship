@@ -53,35 +53,25 @@ module BattleShip::Server
           else
 
             begin
-              input = socket.recv(1024)
-              unless input
-                puts "Client %s:%s disconnect" % [socket.peeraddr[2], socket.peeraddr[1]]
-                socket.delete(socket)
-                socket.close
-                next
-              end
 
-              input = input.unpack('C*')
-              puts "<#{input}"
-
-
-              code, body = input.shift, input
               user = @@users[socket.object_id]
+              command = @@protocol.processing(socket)
 
-              if code == 30
-                socket.puts 'Good bue!'
-                puts "User #%s, %s:%s disconnect" % [user.id, user.ip, user.port]
-                @@sockets.delete(socket)
-                socket.close
-              elsif user.auth?
-
-                begin
-                  @game.add_command(user, code, body)
-                rescue
-                  socket.puts $!
-                end
-
+              case(command)
+                when Protocol::DISCONNECT
+                  puts "Client %s:%s disconnect" % [user.ip, user.port]
+                  socket.delete(socket)
+                  socket.close
+                  next
+                when Protocol::QUIT
+                  @@sockets.delete(socket)
+                  socket.puts 'Good bue!'
+                  puts "User #%s, %s:%s left" % [user.id, user.ip, user.port]
+                  socket.close
+                else
+                  @game.add_command(user, command)
               end
+
             rescue
               puts $!.inspect
               puts "Error, client disconnect"

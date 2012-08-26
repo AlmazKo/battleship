@@ -2,13 +2,14 @@
 module BattleShip::Client
   class Game
     def start
-      raise 'Fail auth!' unless auth()
+
+     raise 'Fail auth!' unless auth()
 
       game = game_join()
 
       map = ship_disposal()
 
-      send_map(map);
+      send_map(map)
 
       while game.run?
 

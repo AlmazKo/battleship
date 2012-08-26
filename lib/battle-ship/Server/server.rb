@@ -8,11 +8,13 @@ module BattleShip::Server
     @@server
     @@sockets = []
     @@users   = {}
+    @@protocol = BattleShip::Protocol.new
 
     def self.init(port = 2001)
       @@server  = ::TCPServer.open(port)
       @@sockets = [@@server]
       @@users   = {}
+
       puts "Open port: #{port}"
     end
 

@@ -6,6 +6,7 @@ end
 
 
 require 'socket'
+require 'battle-ship/protocol'
 require "battle-ship/Server/game"
 require "battle-ship/Server/user"
 require "battle-ship/Server/server"

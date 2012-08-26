@@ -15,6 +15,7 @@ module BattleShip::Client
 
     def to_send(type, message = nil)
       case type
+
         when MAP
           data = message.map.flatten.unshift(MAP)
           @socket.write data.pack('C*')
