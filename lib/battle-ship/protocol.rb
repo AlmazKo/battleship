@@ -7,6 +7,8 @@ module BattleShip
     FIRE = 20
     QUIT = 30
 
+    AUTH_ACCEPT = 101
+
     def processing(socket)
       input = socket.recv(1024)
       unless input
@@ -38,5 +40,9 @@ module BattleShip
       socket.write data.pack('C*')
     end
 
+
+    def self.auth_accept(key)
+
+    end
   end
 end

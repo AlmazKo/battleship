@@ -11,16 +11,18 @@ Signal.trap("INT") do
 end
 
 
-game_thread = Thread.new {
-  Thread.current[:game] = Game.new
-}
+commands_queue = Queue.new
+
+game_thread = Thread.new(commands_queue) do |commands_queue|
+  Thread.current[:game] = Game.new(commands_queue)
+end
 
 Server::init
 
-listener_thread = Thread.new {
-  server = Listener.new game_thread
+listener_thread = Thread.new (commands_queue) do |commands_queue|
+  server = Listener.new commands_queue
   server.cycle
-}
+end
 
 notifier_thread = Thread.new {
   Notifier.new

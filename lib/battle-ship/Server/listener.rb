@@ -1,30 +1,35 @@
 # @author
+require 'digest'
 module BattleShip::Server
 
   class Listener <  Server
 
     # @param [Game] game
-    def initialize(game)
+    def initialize(commands_queue)
       puts 'Listener-server has started!'
-      @game = game[:game]
+      @in_commands_queue = commands_queue
+      @out_commands_queue = Queue.new
     end
 
 
-    # @return [User]
-    def client_identify(client)
-      _, port, host, ip = client.peeraddr
+    # @return [Session]
+    def client_identify(client_socket)
+      _, port, host, ip = client_socket.peeraddr
 
-      user_session = client.object_id
-      if @@users.key? ip
-        user = @@users[user_session]
-        log "Reconnect %s:%s. User id: %s, registration date: %s" %
-                [ip, port, user.id, user.register_date.strftime('%Y-%m-%d %H:%M:%S')]
+      #session = Digest::MD5.hexdigest(client_socket.object_id)
+      session_id = client_socket.object_id
+      if @@sessions.key? session_id
+        session = @@sessions[session_id]
+        log "Reconnect %s:%s. Session id: %s, last activity date: %s" %
+                [ip, port, session.id, session.last_activity_date.strftime('%Y-%m-%d %H:%M:%S')]
       else
-        user = @@users[user_session] = User.new(ip, port)
-        log "Connect %s:%s. New user id: %s, registration date: %s" %
-                [ip, port, user.id, user.register_date.strftime('%Y-%m-%d %H:%M:%S')]
+        session = @@sessions[session_id] = Session.new(ip, port)
+        log "Connect %s:%s. New session id: %s" % [ip, port, session.id]
       end
-      user
+
+      key = Digest::MD5.hexdigest(user_session)
+      @in_commands_queue.enq [session_id, Protocol.auth_accept(key)]
+      nil
     end
 
     def cycle
@@ -35,29 +40,29 @@ module BattleShip::Server
         readable.each do |socket|
           if socket == @@server
 
-            client = @@server.accept
-            @@sockets << client
+            new_client_socket = @@server.accept
+            @@sockets << new_client_socket
 
             client.puts "#{NAME} connect"
-            user = client_identify(client)
-
-            begin
-              @game.add_gamer(user)
-              user.auth = true
-            rescue
-              client.puts $!
-
-            else
-              client.puts "You have been include to game"
-            end
+            user = client_identify(new_client_socket)
+            #
+            #begin
+            #  @game.add_gamer(user)
+            #  user.auth = true
+            #rescue
+            #  client.puts $!
+            #
+            #else
+            #  client.puts "You have been include to game"
+            #end
           else
 
             begin
 
-              user = @@users[socket.object_id]
+              user = @@sessions[socket.object_id]
               command = @@protocol.processing(socket)
 
-              case(command)
+              case(command.code)
                 when Protocol::DISCONNECT
                   puts "Client %s:%s disconnect" % [user.ip, user.port]
                   socket.delete(socket)
@@ -69,7 +74,7 @@ module BattleShip::Server
                   puts "User #%s, %s:%s left" % [user.id, user.ip, user.port]
                   socket.close
                 else
-                  @game.add_command(user, command)
+                  @in_commands_queue.enq(user, command)
               end
 
             rescue

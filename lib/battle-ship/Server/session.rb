@@ -1,15 +1,14 @@
 # @author
 module BattleShip::Server
 
-  class User
+  class Session
     @@gid = 0
     @@mutex = Mutex.new
 
-    attr_reader :id, :ip, :port, :name, :register_date
-    attr_writer :auth
+    attr_reader :id, :ip, :port, :last_activity_date
 
     def initialize(ip, port)
-      @ip, @port, @register_date = ip, port, Time.now
+      @ip, @port, @last_activity_date = ip, port, Time.now
       @auth = false
 
       @@mutex.synchronize {
@@ -18,9 +17,6 @@ module BattleShip::Server
       }
     end
 
-    def auth?
-      @auth
-    end
 
   end
 end

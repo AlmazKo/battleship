@@ -7,13 +7,14 @@ module BattleShip::Server
     @@mutex = Mutex.new
     @@server
     @@sockets = []
-    @@users   = {}
+
+    @@sessions   = {}
     @@protocol = BattleShip::Protocol.new
 
     def self.init(port = 2001)
       @@server  = ::TCPServer.open(port)
       @@sockets = [@@server]
-      @@users   = {}
+      @@sessions   = {}
 
       puts "Open port: #{port}"
     end
