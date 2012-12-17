@@ -11,27 +11,7 @@ Signal.trap("INT") do
 end
 
 
-commands_queue = Queue.new
 
-game_thread = Thread.new(commands_queue) do |commands_queue|
-  Thread.current[:game] = Game.new(commands_queue)
-end
+game = Game.new
+BattleShip::Server::Server.new(game)
 
-Server::init
-
-listener_thread = Thread.new (commands_queue) do |commands_queue|
-  server = Listener.new commands_queue
-  server.cycle
-end
-
-notifier_thread = Thread.new {
-  Notifier.new
-}
-
-
-
-
-main = Thread.main
-current = Thread.current
-all = Thread.list
-all.each { |t| t.join unless t == current or t == main }

@@ -1,7 +1,9 @@
 # coding: utf-8
 module BattleShip::Client
   module MapBashVisual
+
     require "bash-visual"
+
     include ::Bash_Visual
     include FixedObject
 

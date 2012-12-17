@@ -1,92 +1,103 @@
 # @author
-require 'digest'
 module BattleShip::Server
 
-  class Listener <  Server
+  class Listener < Server
 
-    # @param [Game] game
-    def initialize(commands_queue)
-      puts 'Listener-server has started!'
-      @in_commands_queue = commands_queue
-      @out_commands_queue = Queue.new
-    end
+    # @return [User]
+    def client_identify(client)
+      _, port, host, ip = client.peeraddr
 
-
-    # @return [Session]
-    def client_identify(client_socket)
-      _, port, host, ip = client_socket.peeraddr
-
-      #session = Digest::MD5.hexdigest(client_socket.object_id)
-      session_id = client_socket.object_id
-      if @@sessions.key? session_id
-        session = @@sessions[session_id]
-        log "Reconnect %s:%s. Session id: %s, last activity date: %s" %
-                [ip, port, session.id, session.last_activity_date.strftime('%Y-%m-%d %H:%M:%S')]
+      user_session = client.object_id
+      if @users.key? ip
+        user = @users[user_session]
+        log "Reconnect %s:%s. User id: %s, registration date: %s" %
+                [ip, port, user.id, user.register_date.strftime('%Y-%m-%d %H:%M:%S')]
       else
-        session = @@sessions[session_id] = Session.new(ip, port)
-        log "Connect %s:%s. New session id: %s" % [ip, port, session.id]
+        user = @users[user_session] = User.new(ip, port)
+        log "Connect %s:%s. New user id: %s, registration date: %s" %
+                [ip, port, user.id, user.register_date.strftime('%Y-%m-%d %H:%M:%S')]
       end
-
-      key = Digest::MD5.hexdigest(user_session)
-      @in_commands_queue.enq [session_id, Protocol.auth_accept(key)]
-      nil
+      user
     end
 
     def cycle
       loop do
-        puts  select(@@sockets).inspect
-        readable = select(@@sockets)[0]
 
+        readable = select(@sockets)[0]
+        if(@sockets.size > 2)
+          @sockets[1].puts 'ping'
+        end
         readable.each do |socket|
-          if socket == @@server
+          if socket == @server
 
-            new_client_socket = @@server.accept
-            @@sockets << new_client_socket
+            client = @server.accept
+            @sockets << client
 
             client.puts "#{NAME} connect"
-            user = client_identify(new_client_socket)
-            #
-            #begin
-            #  @game.add_gamer(user)
-            #  user.auth = true
-            #rescue
-            #  client.puts $!
-            #
-            #else
-            #  client.puts "You have been include to game"
-            #end
+            user = client_identify(client)
+
+            begin
+              @game.add_gamer(user)
+              user.auth = true
+            rescue
+              client.puts $!
+
+            else
+              client.puts "You have been include to game"
+            end
+            puts @sockets.inspect
           else
 
             begin
-
-              user = @@sessions[socket.object_id]
-              command = @@protocol.processing(socket)
-
-              case(command.code)
-                when Protocol::DISCONNECT
-                  puts "Client %s:%s disconnect" % [user.ip, user.port]
-                  socket.delete(socket)
-                  socket.close
-                  next
-                when Protocol::QUIT
-                  @@sockets.delete(socket)
-                  socket.puts 'Good bue!'
-                  puts "User #%s, %s:%s left" % [user.id, user.ip, user.port]
-                  socket.close
-                else
-                  @in_commands_queue.enq(user, command)
+              input = socket.recv(1024)
+              unless input
+                puts "Client %s:%s disconnect" % [socket.peeraddr[2], socket.peeraddr[1]]
+                socket.delete(socket)
+                socket.close
+                next
               end
 
+              input = input.unpack('C*')
+              puts "<#{input}"
+
+
+              code, body = input.shift, input
+              user = @users[socket.object_id]
+
+              if code == 30
+                socket.puts 'Good bue!'
+                puts "User #%s, %s:%s disconnect" % [user.id, user.ip, user.port]
+                @sockets.delete(socket)
+                socket.close
+              elsif user.auth?
+
+                begin
+                  @game.add_command(user, code, body)
+                rescue
+                  socket.puts $!
+                end
+
+              end
             rescue
               puts $!.inspect
               puts "Error, client disconnect"
-              @@sockets.delete(socket)
+              @sockets.delete(socket)
               socket.close
             end
           end
         end
       end
     end
+
+
+    def puts string
+      super (Time.now.strftime("%H:%M:%S:%3N") << ' ' << string)
+    end
+
+    def log string
+      puts string
+    end
+
   end
 
 end

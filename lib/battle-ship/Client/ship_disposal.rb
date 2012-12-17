@@ -12,7 +12,7 @@ module BattleShip::Client
       console.draw_window(map, 'Map')
       map.draw
       console.position=[0, 13]
-      console.write_ln 'Moving: arrows. Build ship: b. Remove ship: r. Clear All: ESC, Done:Enter'
+      console.write_ln 'Moving: arrows. Build ship: "b". Remove ship: "r". Clear All: "c", Done: "Enter"'
 
 
       kb = KeyMap.new
@@ -28,6 +28,13 @@ module BattleShip::Client
 
       console.position=[0, 14]
       map
+    end
+
+
+
+
+    def ships_arrangement
+
     end
   end
 

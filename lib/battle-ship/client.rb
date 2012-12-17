@@ -6,8 +6,6 @@ end
 
 gem "bash-visual"
 require "bash-visual"
-
-require 'battle-ship/protocol'
 require "battle-ship/Client/map"
 require "battle-ship/Client/key_map"
 require "battle-ship/Client/map_bash_visual"
