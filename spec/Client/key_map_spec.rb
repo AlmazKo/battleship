@@ -2,7 +2,7 @@
 $:.unshift(File.dirname(__FILE__))
 
 require "helper"
-require "/home/almazko/projects/battleship/lib/battle-ship/Client/key_map"
+require "battle-ship/Client/key_map"
 
 include BattleShip::Client
 
@@ -10,41 +10,43 @@ describe BattleShip::Client::KeyMap do
 
   before(:all) do
     Thread.abort_on_exception = true
-    @stream = File.open('fake_stream', 'w'){}
-    @stream = File.open('fake_stream', 'a+')
-    @key_map = BattleShip::Client::KeyMap.new(@stream)
+    @stream = FakeBlockingStream.new
+    @key_map = KeyMap.new(@stream)
   end
 
   after(:all) do
     @stream.close
   end
 
-  it 'Массив bindings должен содержать как минимум одну операцию выхода' do
+  it "Array of Bindings's mustn't be empty after running" do
     lambda { @key_map.start }.should raise_error
   end
 
-  it 'Считывание должно проводится в отдельном потоке' do
+  it "Listening must be done in separated thread" do
     @key_map.bind "\r", -> { KeyMap::STOP }
 
     @key_map.start
-    thread_wait
+    wait_thread
     @key_map.listener.should be_an_instance_of(Thread)
     @key_map.run?.should be_true
 
     @key_map.stop
-    thread_wait
+    wait_thread
     @key_map.run?.should be_false
   end
 
-  it 'Работа должна прекратиться при получении соответствующей команды' do
+ it "Must stop after calling corresponding command" do
     @key_map.bind "x", -> { KeyMap::STOP }
     @stream << 'x'
     @key_map.start
 
+    wait_thread
+
     @key_map.run?.should be_false
   end
 
-  it 'Должен вызваться переданный proc, если сработал binding' do
+
+  it "To be called passed proc" do
 
     checker = Struct.new(:called).new(false)
     proc = ->(x){ ->{x.called = true }}[checker]
@@ -55,14 +57,13 @@ describe BattleShip::Client::KeyMap do
     checker.called.should be_false
 
     @stream.write 'c'
-    thread_wait
+    wait_thread
 
     checker.called.should be_true
   end
 
-
   private
-  def thread_wait
+  def wait_thread
     sleep 0.05
   end
 
