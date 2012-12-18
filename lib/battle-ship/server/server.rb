@@ -1,7 +1,18 @@
 # @author
 module BattleShip::Server
+  @@mutex = Mutex.new
 
-  class Listener < Server
+  class Server
+    NAME = 'Battleship-server v.0.1'
+    # @param [Game] game
+    def initialize(game)
+      @game = game
+      @server = ::TCPServer.open(2000)
+      puts 'Battleship-server v.0.1 is ready!'
+      @sockets = [@server]
+      @users = {}
+    end
+
 
     # @return [User]
     def client_identify(client)
@@ -51,7 +62,7 @@ module BattleShip::Server
             begin
               input = socket.recv(1024)
               unless input
-                puts "Client %s:%s disconnect" % [socket.peeraddr[2], socket.peeraddr[1]]
+                puts "client %s:%s disconnect" % [socket.peeraddr[2], socket.peeraddr[1]]
                 socket.delete(socket)
                 socket.close
                 next

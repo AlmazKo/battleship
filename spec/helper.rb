@@ -1,13 +1,8 @@
-SPEC_DIR = File.dirname(__FILE__)
-
-require "simplecov"
+require "thread"
 require "rspec"
 
-require "fake_blocking_stream"
 require "battle-ship"
 
-
-SimpleCov.coverage_dir(SPEC_DIR + '/../.coverage')
-SimpleCov.start
+require "fake_blocking_stream"
 
 $:.push File.expand_path('../lib', __FILE__)

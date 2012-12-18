@@ -1,8 +1,6 @@
 # coding: utf-8
-$:.unshift(File.dirname(__FILE__))
 
-require "helper"
-require "battle-ship/Client/key_map"
+require "battle-ship/client/key_map"
 
 include BattleShip::Client
 
@@ -11,11 +9,12 @@ describe BattleShip::Client::KeyMap do
   before(:all) do
     Thread.abort_on_exception = true
     @stream = FakeBlockingStream.new
+
     @key_map = KeyMap.new(@stream)
   end
 
   after(:all) do
-    @stream.close
+
   end
 
   it "Array of Bindings's mustn't be empty after running" do
@@ -44,7 +43,6 @@ describe BattleShip::Client::KeyMap do
 
     @key_map.run?.should be_false
   end
-
 
   it "To be called passed proc" do
 

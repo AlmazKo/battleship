@@ -20,7 +20,7 @@ module BattleShip::Client
       @stream = stream
       @listener = nil
       trap("INT") do
-        #puts "Client terminating..."
+        #puts "client terminating..."
         @listener.exit if @listener.alive?
         exit
       end
