@@ -13,10 +13,6 @@ describe BattleShip::Client::KeyMap do
     @key_map = KeyMap.new(@stream)
   end
 
-  after(:all) do
-
-  end
-
   it "Array of Bindings's mustn't be empty after running" do
     lambda { @key_map.start }.should raise_error
   end
@@ -27,10 +23,17 @@ describe BattleShip::Client::KeyMap do
     @key_map.start
     wait_thread
     @key_map.listener.should be_an_instance_of(Thread)
-    @key_map.run?.should be_true
 
     @key_map.stop
-    wait_thread
+  end
+
+  it "Must running after start and stopping after stop" do
+    @key_map.bind "\r", -> { KeyMap::STOP }
+
+    @key_map.run?.should be_false
+    @key_map.start
+    @key_map.run?.should be_true
+    @key_map.stop
     @key_map.run?.should be_false
   end
 

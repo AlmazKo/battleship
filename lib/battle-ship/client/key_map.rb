@@ -2,8 +2,6 @@
 module BattleShip::Client
   class KeyMap
 
-    require 'syslog'
-    #@@syslog  = Syslog.open($0, Syslog::LOG_PID | Syslog::LOG_CONS) { |s| s.warning "Danger!" }
     ESC = "\e"
     DOWN = "\e[B"
     UP = "\e[A"
@@ -19,11 +17,6 @@ module BattleShip::Client
       @bindings = {}
       @stream = stream
       @listener = nil
-      trap("INT") do
-        #puts "client terminating..."
-        @listener.exit if @listener.alive?
-        exit
-      end
     end
 
     def start
@@ -39,15 +32,16 @@ module BattleShip::Client
           loop do
 
             reading = @stream.getc
-            unless reading
-              sleep 0.01
-              next
-            end
+            #unless reading
+            #  sleep 0.01
+            #  next
+            #end
+
             cmd << reading
 
-            if @bindings[cmd]
+            if bindings[cmd]
 
-              if @bindings[cmd].call == false
+              if bindings[cmd].call == false
                 break
               end
               cmd = ''
