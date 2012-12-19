@@ -9,6 +9,7 @@ require "bash-visual"
 
 require "battle-ship/client/map"
 require "battle-ship/client/key_map"
+require "battle-ship/client/user_thread"
 require "battle-ship/client/map_bash_visual"
 require "battle-ship/client/ship_disposal"
 require "battle-ship/client/client"

@@ -1,5 +1,7 @@
 class FakeBlockingStream
 
+  attr_reader :queue
+
   def initialize
       @queue = Queue.new
   end
