@@ -1,6 +1,6 @@
 # coding: utf-8
 module BattleShip::Client
-  class UserThread < ::Thread
+  class Input < ::Thread
 
     ESC = "\e"
     DOWN = "\e[B"
@@ -9,19 +9,19 @@ module BattleShip::Client
     RIGHT = "\e[C"
     ENTER = "\r"
 
-    def initialize(stream)
-
+    def initialize(stream = STDIN)
       @control = false
-      @thread = super(stream) { |stream|
-        bindings = {
-          on_key_press: {},
-          on_submit: nil
-        }
-        Thread.current[:bindings] = bindings
 
+      @thread = super(stream) { |stream|
         @stream = stream
         cycle()
       }
+
+      self[:bindings] = {
+          on_key_press: {},
+          on_submit: nil
+      }
+
     end
 
     alias stop exit
@@ -29,13 +29,13 @@ module BattleShip::Client
     # @param [String] key
     # @param [Proc] lambda
     def on_key_press(key, lambda)
-      @thread[:bindings][:on_key_press][key] = lambda
+      self[:bindings][:on_key_press][key] = lambda
     end
 
     # @param [Proc] lambda
     def on_submit(lambda)
       #lambda.arity
-      @thread[:bindings][:on_submit] = lambda
+      self[:bindings][:on_submit] = lambda
     end
 
     private
@@ -47,9 +47,10 @@ module BattleShip::Client
     def stop_listening
       system 'stty -raw echo'
     end
+
     #TODO refactor it!
     def cycle
-      bindings = Thread.current[:bindings]
+      bindings = self[:bindings]
       start_listening()
       cmd = ''
 
@@ -66,12 +67,15 @@ module BattleShip::Client
          else
            key = cmd[-1]
          end
+        puts key
 
         if bindings[:on_key_press][key]
-          bindings[:on_key_press][key].call
-          key = cmd = ''
-        end
 
+
+          bindings[:on_key_press][key].call
+          cmd = ''
+        end
+        puts key
         if !@control && cmd.length > 1 &&  cmd[-1] == ENTER
           string = cmd.chomp(ENTER)
           bindings[:on_submit].call(string)
@@ -80,7 +84,8 @@ module BattleShip::Client
       end
 
     ensure
-      start_listening()
+      puts $!.inspect
+      stop_listening()
     end
 
   end

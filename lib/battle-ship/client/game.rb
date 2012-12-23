@@ -1,38 +1,103 @@
 # coding: utf-8
 module BattleShip::Client
+  include Entity
+
+  require "/home/almazko/projects/battleship/spec/fake_blocking_stream"
   class Game
+
+    @@expected = [:exit]
+
+    attr_reader :user_commands
+
+    def initialize
+      @user_commands = ::Queue.new
+
+    end
+
     def start
+      @stream = STDIN #FakeBlockingStream.new
+      @input = Input.new @stream
+      @output = Output.new(@input, @user_commands)
 
-     raise 'Fail auth!' unless auth()
+      @map = Entity::Map.new
 
-      game = game_join()
+     #raise 'Fail auth!' unless auth()
 
-      map = ship_disposal()
+      #game = game_join()
 
-      send_map(map)
 
-      while game.run?
+      #
+      #client = BattleShip::Client::Client.new
+      #client.to_send(Client::MAP, map)
+      #client.start()
 
-        if game.current_gamer?
-          get_command()
-          send_command
-        end
-        draw_map
-        waiting()
-        draw_map
+      @user_commands.push(:ship_disposal)
+
+      while command = @user_commands.pop
+
+        puts command.inspect
+
+            #if @@expected.include?(command)
+              if :exit == command
+                return self.send(command)
+              else
+                self.send(command)
+              end
+            #end
       end
+      #
+      #send_map(map)
+      #
+      #while game.run?
+      #
+      #  if game.current_gamer?
+      #    get_command()
+      #    send_command
+      #  end
+      #  draw_map
+      #  waiting()
+      #  draw_map
+      #end
+      #
+      #if game.win?
+      #  puts 'You win!'
+      #else
+      #  puts 'You looser!'
+      #end
+      #
+      #show_all_ships()
+      #
 
-      if game.win?
-        puts 'You win!'
-      else
-        puts 'You looser!'
-      end
+    ensure
 
-      show_all_ships()
+      puts $!.inspect
+      @input.exit
 
+    end
 
 
-      #msg = Protocol::send_map(map)
+    def exit
+      puts 'Good b'
+    end
+
+
+
+    private
+
+
+    def ship_disposal
+
+      @@expected << :ship_disposal_end
+      @output.ship_disposal(@map)
+    end
+
+
+    def ship_disposal_end
+          puts '@@@'
+    end
+
+    def ui_event(event)
+
 
     end
   end

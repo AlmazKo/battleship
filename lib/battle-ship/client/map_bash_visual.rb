@@ -1,19 +1,38 @@
 # coding: utf-8
 module BattleShip::Client
-  module MapBashVisual
+  class MapBashVisual
 
     require "bash-visual"
 
     include ::Bash_Visual
     include FixedObject
 
+    attr_reader :map
+
+    def initialize(map, console = Console.new)
+      @x = 0
+      @y = 0
+      @width = map.width
+      @height = map.height
+      @map = map
+      @console = console
+    end
+
+    def move_cursor(offset_x, offset_y)
+      new_x = @cursor[0] + offset_x
+      new_y = @cursor[1] + offset_y
+
+      unless new_x < 0 or new_x >= @width or new_y < 0 or new_y >= @height
+        @cursor = [new_x, new_y]
+      end
+
+    end
 
     def draw
-    @builder = Builder.new
-    @console = Console.new
+      @builder = Builder.new
 
       @console.position = @x, @y
-      @map.each_with_index do |row, y|
+      @map.map.each_with_index do |row, y|
         string = ''
         row.each_with_index do |cell, x|
 
@@ -26,13 +45,13 @@ module BattleShip::Client
           symbol, type, fg, bg = '~', [:std], :white, :dark_blue
 
           case cell
-            when Map::EMPTY
+            when Entity::Map::EMPTY
               symbol = '~'
               fg = :blue
-            when Map::SHIP
+            when Entity::Map::SHIP
               fg = :yellow
               symbol = '='
-            when Map::STRICKEN
+            when Entity::Map::STRICKEN
               fg = :red
               symbol = 'X'
           end

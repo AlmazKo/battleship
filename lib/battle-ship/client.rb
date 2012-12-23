@@ -5,11 +5,13 @@ module BattleShip
 end
 
 gem "bash-visual"
+
+require "thread"
 require "bash-visual"
 
-require "battle-ship/client/map"
-require "battle-ship/client/key_map"
-require "battle-ship/client/user_thread"
+require "battle-ship/client/entity"
+require "battle-ship/client/game"
+require "battle-ship/client/output"
+require "battle-ship/client/input"
 require "battle-ship/client/map_bash_visual"
-require "battle-ship/client/ship_disposal"
 require "battle-ship/client/client"
