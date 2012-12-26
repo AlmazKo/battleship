@@ -58,5 +58,23 @@ describe BattleShip::Client::Entity::Map do
     expect { map.add_ship(second_ship, [0, 0]) }.to raise_error
   end
 
+  it "Check map after adding ship" do
+
+    map = Map.new(3)
+
+    ship = Ship.new(2, Ship::NORTH)
+
+    map.add_ship(ship, [0, 0])
+
+    expected_map = [[5,    Map::ILLEGAL, Map::EMPTY],
+                    [5,    Map::ILLEGAL, Map::EMPTY],
+                    [Map::ILLEGAL, Map::ILLEGAL, Map::EMPTY]]
+
+    puts expected_map.inspect.gsub('],', "],\n")
+    puts map.to_a.inspect.gsub('],', "],\n")
+
+    map.to_a.should eq expected_map
+  end
+
 
 end

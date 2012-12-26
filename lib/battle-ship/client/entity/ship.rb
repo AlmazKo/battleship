@@ -13,5 +13,10 @@ module BattleShip::Client::Entity
       @length = length
       @direction = direction
     end
+
+
+    def to_s
+      "<Ship len:{#@length}, dir:{#@direction}>"
+    end
   end
 end
