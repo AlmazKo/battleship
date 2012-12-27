@@ -9,6 +9,8 @@ module BattleShip::Client
 
     attr_reader :map
 
+    # @param [BattleShip::Client::Entity::Map] map
+    # @param [Console] console
     def initialize(map, console = Console.new)
       @x = 0
       @y = 0
@@ -32,7 +34,7 @@ module BattleShip::Client
       @builder = Builder.new
 
       @console.position = @x, @y
-      @map.map.each_with_index do |row, y|
+      @map.area.each_with_index do |row, y|
         string = ''
         row.each_with_index do |cell, x|
 
