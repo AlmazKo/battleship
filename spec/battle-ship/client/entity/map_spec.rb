@@ -13,7 +13,36 @@ def wrong_coordinates_ships
       [Ship.new(4, Ship::EAST), [0, 0]],
       [Ship.new(14, Ship::SOUTH), [9, 9]],
   ]
+end
 
+
+def good_ships
+  cases = []
+
+  ship = Ship.new(2, Ship::SOUTH)
+  coordinate = [1, 2]
+  map = [[Map::ILLEGAL, Map::ILLEGAL, Map::ILLEGAL],
+         [Map::ILLEGAL, Map::SHIP,    Map::ILLEGAL],
+         [Map::ILLEGAL, Map::SHIP,    Map::ILLEGAL]]
+
+  cases << [ship, coordinate, map]
+
+
+  ship = Ship.new(3, Ship::WEST)
+  coordinate = [0, 1]
+  map = [[Map::ILLEGAL, Map::ILLEGAL, Map::ILLEGAL],
+         [Map::SHIP,    Map::SHIP,    Map::SHIP],
+         [Map::ILLEGAL, Map::ILLEGAL, Map::ILLEGAL]]
+
+  cases << [ship, coordinate, map]
+
+  ship = Ship.new(1, Ship::EAST)
+  coordinate = [2, 2]
+  map = [[Map::EMPTY, Map::EMPTY,   Map::EMPTY],
+         [Map::EMPTY, Map::ILLEGAL, Map::ILLEGAL],
+         [Map::EMPTY, Map::ILLEGAL, Map::SHIP]]
+
+  cases << [ship, coordinate, map]
 end
 
 describe BattleShip::Client::Entity::Map do
@@ -58,7 +87,7 @@ describe BattleShip::Client::Entity::Map do
     expect { map.add_ship(second_ship, [0, 0]) }.to raise_error
   end
 
-  it "Check map after adding ship" do
+  it "Check map after adding ship (simple case)" do
 
     map = Map.new(3)
 
@@ -73,5 +102,14 @@ describe BattleShip::Client::Entity::Map do
     map.to_a.should eq expected_map
   end
 
+
+  it "Check map after adding ship" do
+    good_ships.each { |ship, coordinate, expected_map|
+      map = Map.new(3)
+      map.add_ship(ship,coordinate)
+      map.to_a.should eq expected_map
+    }
+
+  end
 
 end

@@ -14,10 +14,16 @@ module BattleShip::Client
     def initialize(map, console = Console.new)
       @x = 0
       @y = 0
-      @width = map.width
-      @height = map.height
+
+      @left_padding = 2
+      @top_padding = 1
+      @width = map.width + @left_padding
+      @height = map.height + 1
       @map = map
       @console = console
+
+
+      @cursor = [0,0]
     end
 
     def move_cursor(offset_x, offset_y)
@@ -34,8 +40,21 @@ module BattleShip::Client
       @builder = Builder.new
 
       @console.position = @x, @y
+
+
+      title_cols = ' ' * @left_padding
+      (1...@width-1).each { |i|
+        title_cols << (64+i).chr
+      }
+      string = @builder.write(title_cols, Font.new([:std], :green))
+      @console.write_to_position(1, 1, string)
+
+
+
       @map.area.each_with_index do |row, y|
-        string = ''
+
+        string = (y+1).to_s.rjust(@left_padding)
+        string = @builder.write(string, Font.new([:std], :green))
         row.each_with_index do |cell, x|
 
           if ([x, y] == @cursor)
@@ -66,7 +85,7 @@ module BattleShip::Client
           string << @builder.write(symbol, Font.new(type, fg, bg))
 
         end
-        @console.write_to_position(1, y+1, string)
+        @console.write_to_position(1, y+2, string)
       end
 
     end

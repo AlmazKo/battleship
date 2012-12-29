@@ -29,11 +29,10 @@ module BattleShip::Client::Entity
 
       aft_coordinate = calc_aft_coordinate(ship, bow_coordinate)
 
-      #puts aft_coordinate.inspect
+
       check_coordinate aft_coordinate
 
       ship_area, ship_dead_area = ship_to_array(bow_coordinate, aft_coordinate)
-
 
 
       ship_area.each { |coordinate|
@@ -81,12 +80,12 @@ module BattleShip::Client::Entity
     def get_ship_area(x, y)
       raise "illegal locate of ship (chip sets) " unless self[x, y] == EMPTY
 
-      around_cells = get_around_cells(x, y)
-
+      around_cells = get_around_ship_cells(x, y)
 
       around_cells.each { |coordinate|
         raise "illegal locate of ship (dead zone)" unless (self[coordinate[0], coordinate[1]] & SHIP).zero?
       }
+
       around_cells
     end
 
@@ -95,13 +94,20 @@ module BattleShip::Client::Entity
       ship = []
       dead_zone = []
 
+
       if bow_coordinate[0] == aft_coordinate[0]
+
         #is vertical
         x = bow_coordinate[0]
 
-        (bow_coordinate[1]..aft_coordinate[1]).each { |y|
+        if (bow_coordinate[1] > aft_coordinate[1])
+          ship_range = aft_coordinate[1]..bow_coordinate[1]
+        else
+          ship_range = bow_coordinate[1]..aft_coordinate[1]
+        end
 
 
+        ship_range.each { |y|
           dead_zone += get_ship_area(x, y)
           ship << [x, y]
         }
@@ -109,71 +115,27 @@ module BattleShip::Client::Entity
       else
         #is horizontal
         y = bow_coordinate[1]
-        (bow_coordinate[0]..aft_coordinate[0]).each { |x|
+
+
+        if (bow_coordinate[0] > aft_coordinate[0])
+          ship_range = aft_coordinate[0]..bow_coordinate[0]
+        else
+          ship_range = bow_coordinate[0]..aft_coordinate[0]
+        end
+
+        ship_range.each { |x|
           dead_zone += get_ship_area(y, x)
           ship << [x, y]
         }
       end
 
       [ship, dead_zone - ship]
-
-      #
-      #ship = []
-      #dead_zone = []
-      #if bow_coordinate[1] == aft_coordinate[1]
-      #  column = bow_coordinate[0]
-      #
-      #  (bow_coordinate[1]..aft_coordinate[1]).each { |row|
-      #
-      #
-      #    raise "illegal locate of ship (chip sets) " unless @matrix[row][column] == EMPTY
-      #
-      #    around_cells = get_around_cells(row, column)
-      #
-      #    around_cells.each { |coordinate|
-      #      raise "illegal locate of ship (dead zone)" unless (@matrix[coordinate[0]][coordinate[1]] & SHIP).zero?
-      #      dead_zone << coordinate
-      #    }
-      #
-      #
-      #    ship << [row, column]
-      #  }
-      #else
-      #  row = bow_coordinate[1]
-      #
-      #  (bow_coordinate[1]..aft_coordinate[1]).each { |column|
-      #
-      #
-      #    raise "illegal locate of ship (chip sets) " unless @matrix[row][column] == EMPTY
-      #
-      #    around_cells = get_around_cells(row, column)
-      #
-      #    around_cells.each { |coordinate|
-      #      raise "illegal locate of ship (dead zone)" unless (@matrix[coordinate[0]][coordinate[1]] & SHIP).zero?
-      #      dead_zone << coordinate
-      #    }
-      #
-      #
-      #    ship << [row, column]
-      #  }
-      #end
-      #
-
-
-
-    end
-
-    #def locate_ship(ship)
-    #
-    #end
-
-    def cell_ship?(x, y)
-
-      !(@area[x + 1, y] & SHIP).zero?
     end
 
     def [](x, y)
       return nil if (x < 0 || y < 0)
+      return nil if @area[y].nil?
+
       @area[y][x]
     end
 
@@ -188,32 +150,20 @@ module BattleShip::Client::Entity
       @area[y] = new_row
     end
 
-    def get_around_cells(row, column)
+    def get_around_ship_cells(x, y)
       [
-          [row + 1, column + 1],
-          [row + 1, column],
-          [row + 1, column - 1],
-          [row, column - 1],
-          [row, column + 1],
-          [row - 1, column + 1],
-          [row - 1, column],
-          [row - 1, column - 1],
+          [x + 1, y + 1],
+          [x + 1, y],
+          [x + 1, y - 1],
+          [x,     y - 1],
+          [x,     y + 1],
+          [x - 1, y + 1],
+          [x - 1, y],
+          [x - 1, y - 1],
       ].select { |coordinate|
         !self[coordinate[0], coordinate[1]].nil?
       }
 
     end
-    #def add_ship
-    #  tmp = @map[@cursor[1]].dup
-    #  tmp[@cursor[0]] = SHIP
-    #  @map[@cursor[1]] = tmp
-    #end
-    #
-    #
-    #def remove_ship
-    #  tmp = @map[@cursor[1]].dup
-    #  tmp[@cursor[0]] = EMPTY
-    #  @map[@cursor[1]] = tmp
-    #end
   end
 end

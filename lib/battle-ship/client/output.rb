@@ -9,7 +9,7 @@ module BattleShip::Client
       @stream = stream
       @input = input
       @console = Console.new(Font.new, Console::OUTPUT_WITHOUT_BLOCK)
-
+      @builder = Builder.new
       @thread = super() {
 
       }
@@ -24,6 +24,18 @@ module BattleShip::Client
       #
       @console.draw_window(drawing_map, 'Map')
       drawing_map.draw
+
+
+      #ship = @builder.write("╫", Font.new(:std, :cyan, :dark_blue))
+      #
+      #@console.write_to_position(3, 2, ship)
+      #@console.write_to_position(3, 3, ship)
+      #
+      ship2 = @builder.write("╪", Font.new(:std, :cyan, :dark_blue))
+
+      @console.write_to_position(4, 5, ship2)
+      @console.write_to_position(5, 5, ship2)
+
       #
       #@console.position=[0, 13]
       #@console.write_ln 'Moving: arrows. Build ship: "b". Remove ship: "r". Clear All: "c", Done: "Enter"'
