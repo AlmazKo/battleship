@@ -1,5 +1,6 @@
 # coding: utf-8
 
+require '/home/almaz/RubymineProjects/battleship/spec/helper'
 require "battle-ship/client/input"
 
 include BattleShip::Client

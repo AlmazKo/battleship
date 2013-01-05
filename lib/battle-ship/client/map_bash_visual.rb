@@ -49,8 +49,6 @@ module BattleShip::Client
       string = @builder.write(title_cols, Font.new([:std], :green))
       @console.write_to_position(1, 1, string)
 
-
-
       @map.area.each_with_index do |row, y|
 
         string = (y+1).to_s.rjust(@left_padding)
@@ -69,12 +67,12 @@ module BattleShip::Client
             when Entity::Map::EMPTY
               symbol = '~'
               fg = :blue
-            when Entity::Map::SHIP
-              fg = :yellow
-              symbol = '='
+            when Entity::Map::ILLEGAL
+              symbol = '~'
+              fg = :white
             when Entity::Map::STRICKEN
               fg = :red
-              symbol = 'X'
+              symbol = '◎'
           end
 
           if is_cursor
@@ -88,6 +86,18 @@ module BattleShip::Client
         @console.write_to_position(1, y+2, string)
       end
 
+      draw_ships
+
     end
+
+   private
+
+    def draw_ships
+
+       @map.ships.each_value { |ship|
+          Decorator::Ship.new(ship).draw(@console)
+       }
+    end
+
   end
 end

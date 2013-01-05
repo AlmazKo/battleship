@@ -8,38 +8,37 @@ module BattleShip::Client::Entity
     ILLEGAL = 0b100
     MISS = 0b1000
 
-    attr_reader :ships, :height, :width, :area
+    attr_reader :ships, :height, :width, :area, :ships_extended
 
     def initialize(width = 10, height = width)
       @width = width.to_i
       @height = height.to_i
       @area = [[EMPTY] * @width] * @height
       @ships = {}
+      @ships_extended = []
     end
 
     def to_a
       @area
     end
 
-    # @param [BattleShip::Client::Entity::Ship] ship
+    # @param [BattleShip::Client::Entity::ShipDecorator] ship
     # @param [Array] bow_coordinate
     def add_ship(ship, bow_coordinate)
+
 
       check_coordinate bow_coordinate
 
       aft_coordinate = calc_aft_coordinate(ship, bow_coordinate)
 
-
       check_coordinate aft_coordinate
 
       ship_area, ship_dead_area = ship_to_array(bow_coordinate, aft_coordinate)
 
-
       ship_area.each { |coordinate|
-
-
         self[coordinate[0], coordinate[1]] = self[coordinate[0], coordinate[1]] | SHIP
       }
+
 
 
       ship_dead_area.each { |coordinate|
@@ -47,7 +46,27 @@ module BattleShip::Client::Entity
       }
 
 
+      ship.dead_area = ship_dead_area
+      ship.area = ship_area
       @ships[bow_coordinate] = ship
+    end
+
+    def shot(*target)
+      @ships.each_value { |ship|
+
+        ship.area.each_with_index { |coordinate, i|
+          if target == coordinate
+
+            if ship.attack(i)
+              return ship.alive? ? :hit : :critical
+            end
+
+            return :already
+          end
+        }
+      }
+
+      :miss
     end
 
     private
@@ -59,9 +78,9 @@ module BattleShip::Client::Entity
     end
 
     def calc_aft_coordinate(ship, bow_coordinate)
-      inc = ship.length - 1
 
-      bow_coordinate.dup if inc.zero?
+      inc = ship.length - 1
+      return bow_coordinate.dup if inc.zero?
 
       case ship.direction
         when Ship::NORTH
@@ -72,7 +91,6 @@ module BattleShip::Client::Entity
           [bow_coordinate[0] + inc, bow_coordinate[1]]
         when Ship::EAST
           [bow_coordinate[0] - inc, bow_coordinate[1]]
-
       end
     end
 
@@ -94,20 +112,18 @@ module BattleShip::Client::Entity
       ship = []
       dead_zone = []
 
-
       if bow_coordinate[0] == aft_coordinate[0]
 
         #is vertical
         x = bow_coordinate[0]
 
         if (bow_coordinate[1] > aft_coordinate[1])
-          ship_range = aft_coordinate[1]..bow_coordinate[1]
+          ship_enum = (aft_coordinate[1]..bow_coordinate[1]).to_a.reverse
         else
-          ship_range = bow_coordinate[1]..aft_coordinate[1]
+          ship_enum = (bow_coordinate[1]..aft_coordinate[1]).to_a
         end
 
-
-        ship_range.each { |y|
+        ship_enum.each { |y|
           dead_zone += get_ship_area(x, y)
           ship << [x, y]
         }
@@ -116,15 +132,14 @@ module BattleShip::Client::Entity
         #is horizontal
         y = bow_coordinate[1]
 
-
         if (bow_coordinate[0] > aft_coordinate[0])
-          ship_range = aft_coordinate[0]..bow_coordinate[0]
+          ship_enum = (aft_coordinate[0]..bow_coordinate[0]).to_a.reverse
         else
-          ship_range = bow_coordinate[0]..aft_coordinate[0]
+          ship_enum = (bow_coordinate[0]..aft_coordinate[0]).to_a
         end
 
-        ship_range.each { |x|
-          dead_zone += get_ship_area(y, x)
+        ship_enum.each { |x|
+          dead_zone += get_ship_area(x, y)
           ship << [x, y]
         }
       end

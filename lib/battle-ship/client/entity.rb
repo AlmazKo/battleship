@@ -8,3 +8,8 @@ end
 
 require "battle-ship/client/entity/ship"
 require "battle-ship/client/entity/map"
+
+require "battle-ship/client/decorator/ship"
+
+
+

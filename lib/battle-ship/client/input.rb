@@ -67,7 +67,6 @@ module BattleShip::Client
          else
            key = cmd[-1]
          end
-        puts key
 
         if bindings[:on_key_press][key]
 
@@ -75,7 +74,7 @@ module BattleShip::Client
           bindings[:on_key_press][key].call
           cmd = ''
         end
-        puts key
+
         if !@control && cmd.length > 1 &&  cmd[-1] == ENTER
           string = cmd.chomp(ENTER)
           bindings[:on_submit].call(string)

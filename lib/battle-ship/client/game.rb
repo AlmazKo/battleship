@@ -2,7 +2,6 @@
 module BattleShip::Client
   include Entity
 
-  require "/home/almazko/projects/battleship/spec/fake_blocking_stream"
   class Game
 
     @@expected = [:exit]
@@ -30,6 +29,11 @@ module BattleShip::Client
       #client = BattleShip::Client::Client.new
       #client.to_send(Client::MAP, map)
       #client.start()
+
+      @input.on_key_press 'q', -> {
+
+        @user_commands.push(:exit)
+      }
 
       @user_commands.push(:ship_disposal)
 
