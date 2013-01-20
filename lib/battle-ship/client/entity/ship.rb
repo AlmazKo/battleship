@@ -7,7 +7,7 @@ module BattleShip::Client::Entity
     WEST = :west
     EAST = :east
 
-    attr_reader :length, :direction, :hit_points, :sections, :dead_area, :area
+    attr_reader :length, :direction, :hit_points, :sections, :blind_spot, :area
 
     def initialize(length, direction = NORTH)
       @length = length
@@ -15,12 +15,12 @@ module BattleShip::Client::Entity
       @sections = [1] * length
       @hit_points = @length
 
-      @dead_area = []
+      @blind_spot = []
       @area = []
     end
 
     def dead_area=(area)
-      @dead_area = area
+      @blind_spot = area
     end
 
     def area=(area)

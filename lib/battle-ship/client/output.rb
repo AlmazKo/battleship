@@ -18,7 +18,7 @@ module BattleShip::Client
     end
 
 
-    def ship_disposal(map = map.dup, drawing_map = MapBashVisual.new(map, @console))
+    def ship_disposal(map = map.dup, drawing_map = Decorator::Map.new(map, @console))
 
       ship = Entity::Ship.new(1, :east)
       map.add_ship(ship, [1, 0])

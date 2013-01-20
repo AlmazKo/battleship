@@ -5,7 +5,7 @@ module BattleShip::Client::Entity
     EMPTY = 0b00
     SHIP = 0b01
     STRICKEN = 0b10
-    ILLEGAL = 0b100
+    BLIND_SPOT = 0b100
     MISS = 0b1000
 
     attr_reader :ships, :height, :width, :area, :ships_extended
@@ -42,7 +42,7 @@ module BattleShip::Client::Entity
 
 
       ship_dead_area.each { |coordinate|
-        self[coordinate[0], coordinate[1]] = self[coordinate[0], coordinate[1]] | ILLEGAL
+        self[coordinate[0], coordinate[1]] = self[coordinate[0], coordinate[1]] | BLIND_SPOT
       }
 
 

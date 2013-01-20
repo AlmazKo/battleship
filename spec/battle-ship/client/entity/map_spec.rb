@@ -21,25 +21,25 @@ def good_ships
 
   ship = Ship.new(2, Ship::SOUTH)
   coordinate = [1, 2]
-  map = [[Map::ILLEGAL, Map::ILLEGAL, Map::ILLEGAL],
-         [Map::ILLEGAL, Map::SHIP, Map::ILLEGAL],
-         [Map::ILLEGAL, Map::SHIP, Map::ILLEGAL]]
+  map = [[Map::BLIND_SPOT, Map::BLIND_SPOT, Map::BLIND_SPOT],
+         [Map::BLIND_SPOT, Map::SHIP, Map::BLIND_SPOT],
+         [Map::BLIND_SPOT, Map::SHIP, Map::BLIND_SPOT]]
 
   cases << [ship, coordinate, map]
 
   ship = Ship.new(3, Ship::WEST)
   coordinate = [0, 1]
-  map = [[Map::ILLEGAL, Map::ILLEGAL, Map::ILLEGAL],
+  map = [[Map::BLIND_SPOT, Map::BLIND_SPOT, Map::BLIND_SPOT],
          [Map::SHIP, Map::SHIP, Map::SHIP],
-         [Map::ILLEGAL, Map::ILLEGAL, Map::ILLEGAL]]
+         [Map::BLIND_SPOT, Map::BLIND_SPOT, Map::BLIND_SPOT]]
 
   cases << [ship, coordinate, map]
 
   ship = Ship.new(1, Ship::EAST)
   coordinate = [2, 2]
   map = [[Map::EMPTY, Map::EMPTY, Map::EMPTY],
-         [Map::EMPTY, Map::ILLEGAL, Map::ILLEGAL],
-         [Map::EMPTY, Map::ILLEGAL, Map::SHIP]]
+         [Map::EMPTY, Map::BLIND_SPOT, Map::BLIND_SPOT],
+         [Map::EMPTY, Map::BLIND_SPOT, Map::SHIP]]
 
   cases << [ship, coordinate, map]
 end
@@ -94,9 +94,9 @@ describe BattleShip::Client::Entity::Map do
 
     map.add_ship(ship, [0, 0])
 
-    expected_map = [[Map::SHIP, Map::ILLEGAL, Map::EMPTY],
-                    [Map::SHIP, Map::ILLEGAL, Map::EMPTY],
-                    [Map::ILLEGAL, Map::ILLEGAL, Map::EMPTY]]
+    expected_map = [[Map::SHIP, Map::BLIND_SPOT, Map::EMPTY],
+                    [Map::SHIP, Map::BLIND_SPOT, Map::EMPTY],
+                    [Map::BLIND_SPOT, Map::BLIND_SPOT, Map::EMPTY]]
 
     map.to_a.should eq expected_map
   end
@@ -161,7 +161,7 @@ describe BattleShip::Client::Entity::Map do
     ship = Ship.new(1)
     populated_ship = map.add_ship(ship, [1,1])
 
-    populated_ship.dead_area.sort.should  eq [[0,0], [0,1], [1,0]]
+    populated_ship.blind_spot.sort.should  eq [[0,0], [0,1], [1,0]]
     populated_ship.area.sort.should  eq [[1,1]]
 
   end

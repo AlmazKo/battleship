@@ -11,13 +11,15 @@ module BattleShip::Client::Decorator
       @builder = Builder.new
     end
 
-
-    def rotate(angle=90)
-
-    end
+    def draw(screen)
 
 
-    def draw(console)
+
+      @ship.blind_spot.each { |x,y|
+        symbol, font = screen[x, y]
+        screen[x,y] = [symbol, Font.new(font.types, :white, font.background)]
+      }
+
       if @ship.length == 1
         symbol = get_symbol_small_ship ship
       else
@@ -25,9 +27,9 @@ module BattleShip::Client::Decorator
       end
 
       @ship.area.each {|x,y|
-
-        string = @builder.write(symbol, Font.new(:bold, :yellow))
-        console.write_to_position(x+3, y+2, string)
+        _, font = screen[x, y]
+        font = Font.new(:bold, :yellow, font.background)
+        screen[x,y] = [symbol, font]
       }
     end
 
@@ -36,15 +38,15 @@ module BattleShip::Client::Decorator
     def get_symbol_small_ship ship
       case ship.direction
         when :north
-          '△'
+          '^'
         when :south
-          '▽'
+          'v'
         when :west
-          '◁'
+          '<'
         when :east
-          '▷'
+          '>'
         else
-          '△'
+          '^'
       end
     end
 
