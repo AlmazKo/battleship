@@ -8,8 +8,10 @@ module BattleShip::Client::Decorator
 
     include ::Bash_Visual
     include FixedObject
+    include FixedObject
 
-    attr_reader :map
+    attr_reader :map, :cursor
+    attr_accessor :current_ship
 
     # @param [BattleShip::Client::Entity::Map] map
     # @param [Console] console
@@ -26,6 +28,8 @@ module BattleShip::Client::Decorator
 
       @builder = Builder.new
       @cursor = [0, 0]
+      @current_ship = BattleShip::Client::Entity::Ship.new(1, :west)
+
     end
 
     def move_cursor(offset_x, offset_y)
@@ -60,12 +64,12 @@ module BattleShip::Client::Decorator
 
         string = (y+1).to_s.rjust(@left_offset)
         string = @builder.write(string, Font.new([:std], :green))
-          screen.get_row(y).each { |symbol, font|
-            string << @builder.write(symbol, font)
-          }
+        screen.get_row(y).each { |symbol, font|
+          string << @builder.write(symbol, font)
+        }
 
-          pos =  y  + 1 + @top_offset
-          @console.write_to_position(1, pos, string)
+        pos = y + 1 + @top_offset
+        @console.write_to_position(1, pos, string)
 
       }
     end
@@ -101,10 +105,30 @@ module BattleShip::Client::Decorator
     end
 
     def make_cursor(screen)
-      symbol, font = screen[*@cursor]
+      x, y = *@cursor
+      _, font = screen[x, y]
+
       new_font = Font.new(font.types << :blink, font.foreground, :red)
 
-      screen[*@cursor] = [symbol, new_font]
+
+
+      if @current_ship.vertical?
+        symbol = '║'
+        @current_ship.length.times {
+
+          screen[x, y] = [symbol, new_font]
+          y+=1
+        }
+      else
+        symbol = '═'
+        @current_ship.length.times {
+
+          screen[x, y] = [symbol, new_font]
+          x+=1
+        }
+      end
+
+
     end
 
   end

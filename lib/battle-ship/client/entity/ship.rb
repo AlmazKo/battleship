@@ -45,5 +45,14 @@ module BattleShip::Client::Entity
       @hit_points.zero? ? false : true
     end
 
+
+    def vertical?
+      @direction == :north || @direction == :south
+    end
+
+    def horizontal?
+      !self.vertical?
+    end
+
   end
 end

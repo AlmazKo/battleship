@@ -11,15 +11,23 @@ module BattleShip::Client::Decorator
       @builder = Builder.new
     end
 
-    def draw(screen)
+    def draw(screen, draw_blind_spot = true)
 
+      draw_blind_spot(screen) if draw_blind_spot
 
+      draw_ship(screen)
+    end
 
+    private
+
+    def draw_blind_spot(screen)
       @ship.blind_spot.each { |x,y|
         symbol, font = screen[x, y]
         screen[x,y] = [symbol, Font.new(font.types, :white, font.background)]
       }
+    end
 
+    def draw_ship(screen)
       if @ship.length == 1
         symbol = get_symbol_small_ship ship
       else
@@ -28,12 +36,11 @@ module BattleShip::Client::Decorator
 
       @ship.area.each {|x,y|
         _, font = screen[x, y]
-        font = Font.new(:bold, :yellow, font.background)
+        font = Font.new(:bold, :yellow, font ? font.background : nil)
         screen[x,y] = [symbol, font]
       }
     end
 
-    private
 
     def get_symbol_small_ship ship
       case ship.direction
